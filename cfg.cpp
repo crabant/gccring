@@ -54,7 +54,7 @@
 
 
 #define ORI_LIST_FILENAME_ENV "GCCRING_ORI_LIST_FILENAME"
-#define ORI_LIST_FILENAME_DEFAULT "compile_ori_list.txt"
+#define ORI_LIST_FILENAME_DEFAULT "orilist.txt"
 
 #define ORI_LIST_PREFIX_ENV "GCCRING_ORI_LIST_PREFIX"
 #define ORI_LIST_PREFIX_DEFAULT ""
@@ -63,7 +63,7 @@
 #define ORI_LIST_FRONT_REMOVE_DEFAULT ""
 
 #define NEW_LIST_FILENAME_ENV "GCCRING_NEW_LIST_FILENAME"
-#define NEW_LIST_FILENAME_DEFAULT "compile_new_list.txt"
+#define NEW_LIST_FILENAME_DEFAULT "newlist.txt"
 
 #define NEW_LIST_PREFIX_ENV "GCCRING_NEW_LIST_PREFIX"
 #define NEW_LIST_PREFIX_DEFAULT ""
@@ -186,3 +186,4 @@ std::string CCfg::help()
 		;
 	return ret;
 }
+
