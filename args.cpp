@@ -86,7 +86,11 @@ int CArgs::init(int argc,char* argv[])
 
 		checkMacros(argv[i]);
 		//∫ˆ¬‘¿‡À∆÷∏¡Ó -Wp,-MD,scripts/mod/.empty.o.d
-		ignore=NULL!=strstr(argv[i],",-MD,");
+		ignore=NULL!=strstr(argv[i],"-MD");
+		if(!ignore)
+		{
+			ignore=NULL!=strstr(argv[i],"-MMD");
+		}
 
 		_oriArgs[i]=new char[PATH_MAX];
 		memset(_oriArgs[i],0,PATH_MAX);
