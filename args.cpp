@@ -58,6 +58,12 @@ CArgs::~CArgs()
 		_newArgs=NULL;
 	}
 }
+typedef enum
+{
+	MF_NONE,	//current argument has no relation to -MF
+	MF_CURRENT_MF,			//current argument is -MF
+	MF_FILENAME,		//current argument is the filename for -MF
+}MF_CHECK_VALUE;
 int CArgs::init(int argc,char* argv[])
 {
 	cond_check_r(NULL==_oriArgs,"already inited",-1);
@@ -79,6 +85,7 @@ int CArgs::init(int argc,char* argv[])
 	strcpy(_newArgs[argc],mTag.c_str());
 
 	bool oFound=false;
+	MF_CHECK_VALUE mf=MF_NONE;
 	for(int i=0;argc>i;++i)
 	{
 		int len=strlen(argv[i]);
@@ -91,6 +98,15 @@ int CArgs::init(int argc,char* argv[])
 		{
 			ignore=NULL!=strstr(argv[i],"-MMD");
 		}
+		
+		if(MF_FILENAME==mf)
+			mf=MF_NONE;
+		else if(MF_CURRENT_MF==mf)
+			mf=MF_FILENAME;
+		else if(NULL!=strstr(argv[i],"-MF"))
+			mf=MF_CURRENT_MF;
+		if(MF_CURRENT_MF==mf || MF_FILENAME==mf)
+			ignore=true;
 
 		_oriArgs[i]=new char[PATH_MAX];
 		memset(_oriArgs[i],0,PATH_MAX);
@@ -98,6 +114,7 @@ int CArgs::init(int argc,char* argv[])
 
 		_newArgs[i]=new char[PATH_MAX];
 		memset(_newArgs[i],0,PATH_MAX);
+		
 		if(!ignore)
 			memcpy(_newArgs[i],argv[i],len);
 		else
