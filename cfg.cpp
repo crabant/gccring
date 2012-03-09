@@ -38,44 +38,46 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <libconfig.h>
+#include <iostream>
 
 #include "cfg.h"
 #include "utils.h"
 #include "public.h"
 
-#define INCLUDE_SYSHEADER_ENV "GCCRING_INCLUDE_SYSHEADER"
-#define INCLUDE_SYSHEADER_DEFAULT "1"
+#define INCLUDE_SYSHEADER_ENV "include_sys_header"
+#define INCLUDE_SYSHEADER_DEFAULT true
 
-#define ROOT_PATH_ENV  "GCCRING_ROOTPATH"
+#define ROOT_PATH_ENV  "rootpath"
 #define ROOT_PATH_DEFAULT "/tmp/ring"
 
-#define MACRO_FILENAME_ENV "GCCRING_MACRO_FILENAME"
+#define MACRO_FILENAME_ENV "macro_filename"
 #define MACRO_FILENAME_DEFAULT "compile_macros.h"
 
 
-#define ORI_LIST_FILENAME_ENV "GCCRING_ORI_LIST_FILENAME"
+#define ORI_LIST_FILENAME_ENV "orilist/filename"
 #define ORI_LIST_FILENAME_DEFAULT "orilist.txt"
 
-#define ORI_LIST_PREFIX_ENV "GCCRING_ORI_LIST_PREFIX"
+#define ORI_LIST_PREFIX_ENV "orilist/prefix"
 #define ORI_LIST_PREFIX_DEFAULT ""
 
-#define ORI_LIST_FRONT_REMOVE_ENV "GCCRING_ORI_LIST_FRONT_REMOVE"
+#define ORI_LIST_FRONT_REMOVE_ENV "orilist/front_removed"
 #define ORI_LIST_FRONT_REMOVE_DEFAULT ""
 
-#define NEW_LIST_FILENAME_ENV "GCCRING_NEW_LIST_FILENAME"
+#define NEW_LIST_FILENAME_ENV "newlist/filename"
 #define NEW_LIST_FILENAME_DEFAULT "newlist.txt"
 
-#define NEW_LIST_PREFIX_ENV "GCCRING_NEW_LIST_PREFIX"
+#define NEW_LIST_PREFIX_ENV "newlist/prefix"
 #define NEW_LIST_PREFIX_DEFAULT ""
 
-#define NEW_LIST_FRONT_REMOVE_ENV "GCCRING_NEW_LIST_FRONT_REMOVE"
+#define NEW_LIST_FRONT_REMOVE_ENV "newlist/front_removed"
 #define NEW_LIST_FRONT_REMOVE_DEFAULT ""
 
-#define TRACE_FILE_ENV "GCCRING_TRACE_FILE"
+#define TRACE_FILE_ENV "trace_file"
 #define TRACE_FILE_DEFAULT ""
 
-#define CHANGE_DIR_CHAR_ENV "GCCRING_CHANGE_DIR_CHAR"
-#define CHANGE_DIR_CHAR_DEFAULT "0"
+#define CHANGE_DIR_CHAR_ENV "change_dir_char"
+#define CHANGE_DIR_CHAR_DEFAULT true
 
 bool CCfg::_includeSysHeader=true;
 std::string CCfg::_rootPath=ROOT_PATH_DEFAULT;
@@ -88,102 +90,88 @@ std::string CCfg::_newListPrefix=NEW_LIST_PREFIX_DEFAULT;
 std::string CCfg::_newListFrontRemove=NEW_LIST_FRONT_REMOVE_DEFAULT;
 std::string CCfg::_traceFileName=TRACE_FILE_DEFAULT;
 bool CCfg::_changeDirChar=false;
+
+
+#define CFG_FILE_NAME "/etc/gccring/gccring.cfg"
+
 void CCfg::init()
 {
-	char* tmp;
-
-	tmp=getenv(INCLUDE_SYSHEADER_ENV);
-	if(NULL!=tmp)
+	config_t cfg;
+	const char *str;
+	int value;
+  
+	config_init(&cfg);
+	if(! config_read_file(&cfg, CFG_FILE_NAME))
 	{
-		if(0==strcmp("0",tmp))
-			_includeSysHeader=false;
-		else if(0==strcmp("1",tmp))
-			_includeSysHeader=true;
+		fprintf(stderr, "%d - %s\n", config_error_line(&cfg), config_error_text(&cfg));
+		config_destroy(&cfg);
+		return;
 	}
 
-	tmp=getenv(ROOT_PATH_ENV);
-	if(NULL!=tmp)
-		_rootPath=tmp;
+	if(config_lookup_bool(&cfg,INCLUDE_SYSHEADER_ENV,&value))
+		_includeSysHeader=value;
+	else
+		_includeSysHeader=INCLUDE_SYSHEADER_DEFAULT;
+	
+	if(config_lookup_string(&cfg,ROOT_PATH_ENV,&str))
+		_rootPath=str;
+	else
+		_rootPath=ROOT_PATH_DEFAULT;
 
-	tmp=getenv(MACRO_FILENAME_ENV);
-	if(NULL!=tmp)
-		_macroFileName=tmp;
-	_macroFileName=_rootPath+"/"+_macroFileName;
+	if(config_lookup_string(&cfg,MACRO_FILENAME_ENV,&str))
+		_macroFileName=str;
+	else
+		_macroFileName=MACRO_FILENAME_DEFAULT;
+
+	if(config_lookup_string(&cfg,ORI_LIST_FILENAME_ENV,&str))
+		_oriListFileName=str;
+	else
+		_oriListFileName=ORI_LIST_FILENAME_DEFAULT;
+
+	if(config_lookup_string(&cfg,ORI_LIST_PREFIX_ENV,&str))
+		_oriListPrefix=str;
+	else
+		_oriListPrefix=ORI_LIST_PREFIX_DEFAULT;
+
+	if(config_lookup_string(&cfg,ORI_LIST_FRONT_REMOVE_ENV,&str))
+		_oriListFrontRemove=str;
+	else
+		_oriListFrontRemove=ORI_LIST_FRONT_REMOVE_DEFAULT;
+
+	if(config_lookup_string(&cfg,NEW_LIST_FILENAME_ENV,&str))
+		_newListFileName=str;
+	else
+		_newListFileName=NEW_LIST_FILENAME_DEFAULT;
+
+	if(config_lookup_string(&cfg,NEW_LIST_PREFIX_ENV,&str))
+		_newListPrefix=str;
+	else
+		_newListPrefix=NEW_LIST_PREFIX_DEFAULT;
+
+	if(config_lookup_string(&cfg,NEW_LIST_FRONT_REMOVE_ENV,&str))
+		_newListFrontRemove=str;
+	else
+		_newListFrontRemove=NEW_LIST_FRONT_REMOVE_DEFAULT;
+
+	if(config_lookup_string(&cfg,TRACE_FILE_ENV,&str))
+		_traceFileName=str;
+	else
+		_traceFileName=TRACE_FILE_DEFAULT;
 
 	
-	tmp=getenv(ORI_LIST_FILENAME_ENV);
-	if(NULL!=tmp)
-		_oriListFileName=tmp;
-	_oriListFileName=_rootPath+"/"+_oriListFileName;
-
-	tmp=getenv(ORI_LIST_PREFIX_ENV);
-	if(NULL!=tmp)
-		_oriListPrefix=tmp;
-
-	
-	tmp=getenv(ORI_LIST_FRONT_REMOVE_ENV);
-	if(NULL!=tmp)
-		_oriListFrontRemove=tmp;
-
-	tmp=getenv(NEW_LIST_FILENAME_ENV);
-	if(NULL!=tmp)
-		_newListFileName=tmp;
-	_newListFileName=_rootPath+"/"+_newListFileName;
-
-	tmp=getenv(NEW_LIST_PREFIX_ENV);
-	if(NULL!=tmp)
-		_newListPrefix=tmp;
-	
-	tmp=getenv(NEW_LIST_FRONT_REMOVE_ENV);
-	if(NULL!=tmp)
-		_newListFrontRemove=tmp;
-	
-	tmp=getenv(TRACE_FILE_ENV);
-	if(NULL!=tmp)
-		_traceFileName=tmp;
-
-	tmp=getenv(CHANGE_DIR_CHAR_ENV);
-	if(NULL!=tmp)
-	{
-		if(0==strcmp("0",tmp))
-			_changeDirChar=false;
-		else if(0==strcmp("1",tmp))
-			_changeDirChar=true;
-	}
+	if(config_lookup_bool(&cfg,CHANGE_DIR_CHAR_ENV,&value))
+		_changeDirChar=value;
+	else
+		_changeDirChar=CHANGE_DIR_CHAR_DEFAULT;	
+	 
+  	config_destroy(&cfg);
+  	
+	return;
 }
 std::string CCfg::help()
 {
 	std::string ret;
-	ret="Environment Settings:\n"
-		INCLUDE_SYSHEADER_ENV":whether include system header files\n"
-		"      default:"INCLUDE_SYSHEADER_DEFAULT"\n"
-		"            0:do not include system header files\n"
-		"            1:include system header files\n"
-		"       others:use default\n"
-		ROOT_PATH_ENV":path to store the gccring result\n"
-		"     default:"ROOT_PATH_DEFAULT"\n"
-		MACRO_FILENAME_ENV":contain the macro passed to compile tool\n"
-		"     default:"MACRO_FILENAME_DEFAULT"\n"
-		ORI_LIST_FILENAME_ENV":contains all files that are built,include macro file\n"
-		"     default:"ORI_LIST_FILENAME_DEFAULT"\n"
-		ORI_LIST_PREFIX_ENV":add the prefix string to each line of original list file\n"
-		"     default:"ORI_LIST_PREFIX_DEFAULT"\n"
-		ORI_LIST_FRONT_REMOVE_ENV":remove the the string if existence in front of the file name\n"
-		"     default:"ORI_LIST_FRONT_REMOVE_DEFAULT"\n"
-		NEW_LIST_FILENAME_ENV":contains all files copied to new locations,include macro file\n"
-		"     default:"NEW_LIST_FILENAME_DEFAULT"\n"
-		NEW_LIST_PREFIX_ENV":add the prefix string to each line of new list file\n"
-		"     default:"NEW_LIST_PREFIX_DEFAULT"\n"	
-		NEW_LIST_FRONT_REMOVE_ENV":remove the the string if existence in front of the file name\n"
-		"     default:"NEW_LIST_FRONT_REMOVE_DEFAULT"\n"	
-		TRACE_FILE_ENV":trace to the file,do not trace if filename is NULL\n"
-		"     default:"TRACE_FILE_DEFAULT"\n"
-		CHANGE_DIR_CHAR_ENV":whether replace the dir charcter from '/' to '\\' \n"
-		"      default:"CHANGE_DIR_CHAR_DEFAULT"\n"
-		"            0:do not change\n"
-		"            1:change\n"
-		"       others:use default\n"	
-		;
+	
 	return ret;
 }
 

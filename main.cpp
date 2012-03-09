@@ -113,6 +113,7 @@ int main(int argc,char* argv[])
 {	
 	int res=0;
 	CCfg::init();
+	return 0;
 
 	help(argc,argv);
 
