@@ -1,7 +1,7 @@
 CXX=g++
 
-CXXFLAGS=-g -Wall
-LNKFLAGS=
+CXXFLAGS=-g -Wall `pkg-config --cflags libconfig++`
+LNKFLAGS=`pkg-config --libs libconfig`
 
 OBJS=	\
 	main.o	\
