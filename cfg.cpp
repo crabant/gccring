@@ -92,7 +92,7 @@ std::string CCfg::_traceFileName=TRACE_FILE_DEFAULT;
 bool CCfg::_changeDirChar=false;
 
 
-#define CFG_FILE_NAME "/etc/gccring/gccring.cfg"
+#define CFG_FILE_NAME "/usr/local/gccring/cfg/gccring.cfg"
 
 void CCfg::init()
 {
@@ -112,7 +112,7 @@ void CCfg::init()
 		_includeSysHeader=value;
 	else
 		_includeSysHeader=INCLUDE_SYSHEADER_DEFAULT;
-	
+		
 	if(config_lookup_string(&cfg,ROOT_PATH_ENV,&str))
 		_rootPath=str;
 	else
