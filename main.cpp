@@ -33,6 +33,7 @@
 #include "cfg.h"
 #include "refine.h"
 #include "trace.h"
+#include "ringargs.h"
 
 int main_show_help()
 {
@@ -40,12 +41,22 @@ int main_show_help()
 	str+=
 		"gccring --help\n"
 		"                :show this help\n"
-		"gccring --refine\n"
-		"                :refine the list file\n"
-		"gcc --gccring-help\n"
-		"                :show this help\n"
-		"gcc --gccring-refine\n"
-		"                :refine the list file\n"
+		"gccring gccring enable\n"
+		"              :enable gccring redirect output function\n"
+		"gccring gccring disable\n"
+		"              :disable gccring redirect output function\n"
+		"gccring gccring compiler add COMPILER_COMMAND\n"
+		"              :add a compiler alias\n"
+		"gccring gccring compiler del COMPILER_COMMAND\n"
+		"              :delete a compiler alias\n"
+		"gccring gccring compiler list\n"
+		"              :list current compiler aliases\n"
+		"gccring gccring output list\n"
+		"              :list output files\n"
+		"gccring gccring output refine\n"
+		"              :refine the output list file\n"
+		"gccring gccring output clear\n"
+		"                :clear all output files\n"
 		"\n";
 	str+=CCfg::help();
 	printf("%s",str.c_str());
@@ -113,9 +124,11 @@ int main(int argc,char* argv[])
 {	
 	int res=0;
 	CCfg::init();
-	return 0;
 
-	help(argc,argv);
+	//help(argc,argv);
+	CRingArgs ringArgs;
+	ringArgs.check(argc,argv);
+	return 0;
 
 	CTrace::add("new request");
 	CTrace::add(argc,argv);

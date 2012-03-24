@@ -17,6 +17,7 @@ OBJS=	\
 	cfg.o	\
 	refine.o	\
 	trace.o	\
+	ringargs.o	\
 
 TARGET=gccring
 
