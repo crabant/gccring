@@ -119,14 +119,14 @@ void CCfg::init()
 		_rootPath=ROOT_PATH_DEFAULT;
 
 	if(config_lookup_string(&cfg,MACRO_FILENAME_ENV,&str))
-		_macroFileName=str;
+		_macroFileName=_rootPath+"/"+str;
 	else
-		_macroFileName=MACRO_FILENAME_DEFAULT;
+		_macroFileName=_rootPath+"/"+MACRO_FILENAME_DEFAULT;
 
 	if(config_lookup_string(&cfg,ORI_LIST_FILENAME_ENV,&str))
-		_oriListFileName=str;
+		_oriListFileName=_rootPath+"/"+str;
 	else
-		_oriListFileName=ORI_LIST_FILENAME_DEFAULT;
+		_oriListFileName=_rootPath+"/"+ORI_LIST_FILENAME_DEFAULT;
 
 	if(config_lookup_string(&cfg,ORI_LIST_PREFIX_ENV,&str))
 		_oriListPrefix=str;
@@ -139,9 +139,9 @@ void CCfg::init()
 		_oriListFrontRemove=ORI_LIST_FRONT_REMOVE_DEFAULT;
 
 	if(config_lookup_string(&cfg,NEW_LIST_FILENAME_ENV,&str))
-		_newListFileName=str;
+		_newListFileName=_rootPath+"/"+str;
 	else
-		_newListFileName=NEW_LIST_FILENAME_DEFAULT;
+		_newListFileName=_rootPath+"/"+NEW_LIST_FILENAME_DEFAULT;
 
 	if(config_lookup_string(&cfg,NEW_LIST_PREFIX_ENV,&str))
 		_newListPrefix=str;
@@ -158,6 +158,8 @@ void CCfg::init()
 	else
 		_traceFileName=TRACE_FILE_DEFAULT;
 
+	if(!_traceFileName.empty())
+		_traceFileName=_rootPath+"/"+_traceFileName;
 	
 	if(config_lookup_bool(&cfg,CHANGE_DIR_CHAR_ENV,&value))
 		_changeDirChar=value;

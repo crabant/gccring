@@ -312,12 +312,12 @@ int CRingArgs::output_list()
 	printf("%u directories:\n",dirs.size());
 	for(iter=dirs.begin();dirs.end()!=iter;++iter)
 	{
-		printf("%s\n",(*iter).c_str());
+		printf("\t%s\n",(*iter).c_str());
 	}
 	printf("%u files:\n",files.size());
 	for(iter=files.begin();files.end()!=iter;++iter)
 	{
-		printf("%s\n",(*iter).c_str());
+		printf("\t%s\n",(*iter).c_str());
 	}
 	//
 	return 0;
