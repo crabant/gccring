@@ -44,6 +44,7 @@
 #include "cfg.h"
 #include "utils.h"
 #include "public.h"
+#include "defines.h"
 
 #define INCLUDE_SYSHEADER_ENV "include_sys_header"
 #define INCLUDE_SYSHEADER_DEFAULT true
@@ -92,7 +93,6 @@ std::string CCfg::_traceFileName=TRACE_FILE_DEFAULT;
 bool CCfg::_changeDirChar=false;
 
 
-#define CFG_FILE_NAME "/usr/local/gccring/cfg/gccring.cfg"
 
 void CCfg::init()
 {
