@@ -118,10 +118,98 @@ int CRingArgs::help()
 }
 int CRingArgs::enable()
 {
+	std::list<std::string> paths;
+	char* env=getenv("PATH");
+	if(NULL==env)
+	{
+		printf("could not get PATH environment variable\n");
+		return -1;
+	}
+	std::vector<char> strEnv;
+	int len=strlen(env);
+	strEnv.resize(len+1);
+	memcpy(&strEnv[0],env,len);
+	char* path=strtok(&strEnv[0],":");
+	while(NULL!=path)
+	{
+		char* absPath=realpath(path,NULL);
+		if(NULL!=absPath)
+		{
+			if(0!=strcmp(CFG_CMD_PATH,absPath))
+				paths.push_back(path);
+			else
+			{
+				if(paths.empty())//CFG_CMD_PATH is at frist position
+				{
+					printf("already enabled\n");
+					return 0;
+				}
+			}
+		}
+		else
+			paths.push_back(path);
+		path=strtok(NULL,":");
+	}
+	std::list<std::string>::iterator iter;
+	std::stringstream ss;
+	ss<<"please run folling command manually:\n";
+	ss<<"export PATH=\""<<CFG_CMD_PATH;
+	for(iter=paths.begin();paths.end()!=iter;++iter)
+	{
+		ss<<":"<<*iter;
+	}
+	ss<<"\"";
+	printf("%s\n",ss.str().c_str());
 	return 0;
 }
 int CRingArgs::disable()
 {
+	std::list<std::string> paths;
+	char* env=getenv("PATH");
+	if(NULL==env)
+	{
+		printf("could not get PATH environment variable\n");
+		return -1;
+	}
+	std::vector<char> strEnv;
+	int len=strlen(env);
+	strEnv.resize(len+1);
+	memcpy(&strEnv[0],env,len);
+	char* path=strtok(&strEnv[0],":");
+	bool found=false;
+	while(NULL!=path)
+	{
+		char* absPath=realpath(path,NULL);
+		if(NULL!=absPath)
+		{
+			if(0!=strcmp(CFG_CMD_PATH,absPath))
+				paths.push_back(path);
+			else
+			{
+				found=true;
+			}
+		}
+		else
+			paths.push_back(path);
+		path=strtok(NULL,":");
+	}
+	if(!found)
+	{
+		printf("already disabled\n");
+		return 0;
+	}
+	std::list<std::string>::iterator iter;
+	std::stringstream ss;
+	ss<<"please run folling command manually:\n";
+	ss<<"export PATH=\"";
+	for(iter=paths.begin();paths.end()!=iter;++iter)
+	{
+		if(paths.begin()!=iter)
+			ss<<":";
+		ss<<*iter;
+	}
+	ss<<"\"";
+	printf("%s\n",ss.str().c_str());
 	return 0;
 }
 int CRingArgs::compiler_add()
