@@ -128,7 +128,6 @@ int main(int argc,char* argv[])
 	//help(argc,argv);
 	CRingArgs ringArgs;
 	ringArgs.check(argc,argv);
-	return 0;
 
 	CTrace::add("new request");
 	CTrace::add(argc,argv);

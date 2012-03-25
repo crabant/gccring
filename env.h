@@ -28,8 +28,8 @@ class CEnv
 public:
 	int init(int argc,char* argv[]);
 protected:
-	int getExeFullPath(std::string& path);
-	int kickExePath(std::list<std::string>& paths,std::string exeFullPath);
+	int getStartProgramFullPath(char* arg0,std::string& path);
+	int kickExePath(std::list<std::string>& paths,std::string arg0);
 	int getPaths(std::list<std::string>& paths);//读取环境变量PATH到list
 	int setPaths(std::list<std::string>& paths);//使用list中变量设置PATH
 };

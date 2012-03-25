@@ -27,27 +27,12 @@
 #include <string.h>
 #include <vector>
 #include <limits.h>
+#include <sstream>
 
 #include "env.h"
 #include "public.h"
 #include "utils.h"
-
-
-int CEnv::getExeFullPath(std::string& path)
-{
-	char tmp[256]={0};
-	snprintf(tmp,sizeof(tmp),"/proc/%d/exe",getpid());
-	char link[256]={0};
-	int len=readlink(tmp,link,sizeof(link)-1);
-	if(0>=len)
-	{
-		printf("readlink falied\n");
-		return -2;
-	}
-	std::string dir=utils::dirname(link);
-	path=dir;
-	return 0;
-}
+#include "defines.h"
 
 int CEnv::getPaths(std::list<std::string>& paths)
 {	
@@ -75,36 +60,27 @@ int CEnv::setPaths(std::list<std::string>& paths)
 	setenv("PATH",path.c_str(),1);
 	return 0;
 }
-int CEnv::kickExePath(std::list<std::string>& paths,std::string exeFullPath)
+int CEnv::kickExePath(std::list<std::string>& paths,std::string arg0)
 {
-	char tmp[PATH_MAX]={0};
 	std::string curDir=get_current_dir_name();
-	
-	if(tmp!=realpath(exeFullPath.c_str(),tmp))
-	{
-		printf("realpath(%s) failed\n",exeFullPath.c_str());
-		return -1;
-	}
-	const std::string destPath=tmp;
+		
 
-	std::list<std::string>::iterator iter=paths.begin();
+	std::list<std::string>::iterator iter;
 	std::list<std::string> newPaths;
-	for(;paths.end()!=iter;++iter)
+	bool link;
+	for(iter=paths.begin();paths.end()!=iter;++iter)
 	{
 		std::string path=*iter;
 		if(path.empty())
 			continue;
-		if('/'!=path[0])
+		std::stringstream ss;
+		ss<<path<<"/"<<arg0;
+		if(0==utils::isLink(GCCRING_BIN_FILE,ss.str().c_str(),link))
 		{
-			path=curDir+path;
-		}		
-		if(tmp!=realpath(path.c_str(),tmp))
-		{
-			newPaths.push_back(*iter);
-			continue;
+			if(link)
+				continue;
 		}
-		if(destPath!=tmp)
-			newPaths.push_back(*iter);
+		newPaths.push_back(path);
 	}
 	paths=newPaths;
 	return 0;
@@ -112,16 +88,14 @@ int CEnv::kickExePath(std::list<std::string>& paths,std::string exeFullPath)
 int CEnv::init(int argc,char* argv[])
 {
 	int res=0;
-	std::string exeFullPath;
-	res=getExeFullPath(exeFullPath);
-	cond_check_r(0==res,"getExeFullPath failed",-1);	
+	cond_check_r(0<argc,"invalid argc",-1);
 	std::list<std::string> paths;
 	res=getPaths(paths);
-	cond_check_r(0==res,"getPaths failed",-1);
-	res=kickExePath(paths,exeFullPath);
-	cond_check_r(0==res,"kickExePath failed",-1);
+	cond_check_r(0==res,"getPaths failed",-2);
+	res=kickExePath(paths,argv[0]);
+	cond_check_r(0==res,"kickExePath failed",-3);
 	res=setPaths(paths);
-	cond_check_r(0==res,"setPaths failed",-1);
+	cond_check_r(0==res,"setPaths failed",-4);
 
 	return 0;
 }
