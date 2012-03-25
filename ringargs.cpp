@@ -37,6 +37,7 @@
 
 const CRingArgs::CInfo CRingArgs::_infos[]=
 {
+	{"--help",	"",			2,	&CRingArgs::help,			"help\n\t\t\t:show this help\n"},
 	{"help",	"",			2,	&CRingArgs::help,			"help\n\t\t\t:show this help\n"},
 	{"enable",	"",			2,	&CRingArgs::enable,			"enable\n\t\t\t:enable gccring redirect output function\n"},
 	{"disable",	"",			2,	&CRingArgs::disable,		"disable\n\t\t\t:disable gccring redirect output function\n"},
