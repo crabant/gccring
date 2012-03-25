@@ -33,6 +33,7 @@
 #include "defines.h"
 #include "utils.h"
 #include <list>
+#include "refine.h"
 
 const CRingArgs::CInfo CRingArgs::_infos[]=
 {
@@ -233,7 +234,9 @@ int CRingArgs::output_list()
 	return 0;
 }
 int CRingArgs::output_refine()
-{
+{	
+	CRefine refine;
+	refine.refine();
 	return 0;
 }
 int CRingArgs::output_clear()
