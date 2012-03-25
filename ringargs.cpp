@@ -32,6 +32,7 @@
 #include "trace.h"
 #include "defines.h"
 #include "utils.h"
+#include <list>
 
 const CRingArgs::CInfo CRingArgs::_infos[]=
 {
@@ -193,6 +194,42 @@ int CRingArgs::compiler_list()
 }
 int CRingArgs::output_list()
 {
+	DIR* dir=opendir(CCfg::_rootPath.c_str());
+	cond_check_r(NULL!=dir,"open output directory failed",-1);
+	struct dirent* entry=readdir(dir);
+	std::list<std::string> dirs;
+	std::list<std::string> files;
+	while(NULL!=entry)
+	{
+		std::stringstream ss;
+		ss<<CCfg::_rootPath<<"/"<<entry->d_name;
+		if('.'!=entry->d_name[0])
+		{
+			struct stat st;		
+			if(0==stat(ss.str().c_str(),&st))
+			{
+				if(S_ISREG(st.st_mode))
+					files.push_back(entry->d_name);
+				else if(S_ISDIR(st.st_mode))
+					dirs.push_back(entry->d_name);
+			}
+		}
+		entry=readdir(dir);
+	}
+	closedir(dir);
+
+	std::list<std::string>::iterator iter;
+	printf("%u directories:\n",dirs.size());
+	for(iter=dirs.begin();dirs.end()!=iter;++iter)
+	{
+		printf("%s\n",(*iter).c_str());
+	}
+	printf("%u files:\n",files.size());
+	for(iter=files.begin();files.end()!=iter;++iter)
+	{
+		printf("%s\n",(*iter).c_str());
+	}
+	//
 	return 0;
 }
 int CRingArgs::output_refine()
@@ -201,6 +238,7 @@ int CRingArgs::output_refine()
 }
 int CRingArgs::output_clear()
 {
+	printf("please rm the directory \"%s\" manually\n",CCfg::_rootPath.c_str());
 	return 0;
 }
 
