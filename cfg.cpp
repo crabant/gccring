@@ -50,7 +50,7 @@
 #define INCLUDE_SYSHEADER_DEFAULT true
 
 #define ROOT_PATH_ENV  "rootpath"
-#define ROOT_PATH_DEFAULT "/tmp/ring"
+#define ROOT_PATH_DEFAULT "/tmp/gccring"
 
 #define MACRO_FILENAME_ENV "macro_filename"
 #define MACRO_FILENAME_DEFAULT "compile_macros.h"
