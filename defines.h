@@ -24,5 +24,6 @@
 
 #define CFG_FILE_NAME "/usr/local/gccring/cfg/gccring.cfg"
 #define CFG_CMD_PATH "/usr/local/gccring/bin"
+#define GCCRING_BIN_FILE "/bin/gccring"
 
 #endif//DEFINES_H_INCLUDED

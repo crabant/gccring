@@ -138,4 +138,29 @@ int createPathByDirName(std::string dirName)
 	}
 	return 0;
 }
+int isLink(const char* target,const char* linkName,bool& link)
+{
+	cond_check_r(NULL!=target,"target is NULL",-1);
+	cond_check_r(NULL!=linkName,"linkName is NULL",-2);
+
+	
+	link=false;
+	struct stat st;
+	int res=stat(linkName,&st);
+	if(0==res)
+	{		
+		if(S_ISREG(st.st_mode))
+		{
+			char linkpath[256]={0};
+			if(0<readlink(linkName,linkpath,sizeof(linkpath)-1))
+			{
+				if(0==strcmp(target,linkpath))
+					link=true;
+			}
+		}
+	}
+	return 0;
 }
+
+}
+

@@ -35,10 +35,11 @@ protected:
 	typedef int (CRingArgs::*funcArgAction)();
 	struct CInfo
 	{
-		const char* _tag1;
-		const char* _tag2;
-		funcArgAction _func;
-		const char* _help;
+		const char* 	_tag1;//first argument passed to gccring
+		const char* 	_tag2;//send argument if needed
+		size_t		    _argCount;//include the argv[0]
+		funcArgAction 	_func;//function according to the args
+		const char* 	_help;//help string
 	};
 protected:
 	int help();

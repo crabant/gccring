@@ -28,6 +28,7 @@ int cp(const char* src, const char* dst);
 int rm(const char* src);
 int createPathByFileName(std::string fileName);
 int createPathByDirName(std::string dirName);
+int isLink(const char* target,const char* linkName,bool& link);
 }
 
 #endif//_UTILS_H_INCLUDED_
