@@ -232,7 +232,7 @@ int CRingArgs::compiler_add()
 	}
 	else
 	{
-		printf("added failed\n");
+		printf("added failed,sudo is used?\n");
 		return -1;
 	}
 	return 0;
@@ -258,7 +258,7 @@ int CRingArgs::compiler_del()
 			return 0;
 		}
 	}
-	printf("%s not a gccring compiler\n",_args[3].c_str());
+	printf("%s not a gccring compiler,sudo is used?\n",_args[3].c_str());
 	return 0;
 }
 int CRingArgs::compiler_list()
