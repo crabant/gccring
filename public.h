@@ -24,4 +24,27 @@
 #define cond_check_r(cond,msg,ret)	\
 	do { if(!(cond)){ printf(#cond" failed,%s:%d,%s\n",__FILE__,__LINE__,(msg)); return(ret);} } while (0)
 
+#define cond2_check_r(cond,error,format,...)	\
+	do	\
+	{	\
+		if(!(cond))	\
+		{	\
+			fprintf(stderr,#cond " failed,(%s:%d:%s)",__FILE__,__LINE__,__FUNCTION__);	\
+			fprintf(stderr,format,##__VA_ARGS__);	\
+			fprintf(stderr,"\n");	\
+			return(error);}	\
+		}	\
+	while (0)
+	
+#define cond2_check(cond,error,format,...)	\
+	do	\
+	{	\
+		if(!(cond)) \
+		{	\
+			fprintf(stderr,#cond " failed,(%s:%d:%s)",__FILE__,__LINE__,__FUNCTION__);	\
+			fprintf(stderr,format,##__VA_ARGS__);	\
+			fprintf(stderr,"\n");	\
+		}	\
+	while (0)
+
 #endif//PUBLIC_H_INCLUDED
