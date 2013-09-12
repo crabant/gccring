@@ -64,7 +64,7 @@ typedef enum
 	MF_CURRENT_MF,			//current argument is -MF
 	MF_FILENAME,		//current argument is the filename for -MF
 }MF_CHECK_VALUE;
-int CArgs::init(int argc,char* argv[])
+int CArgs::parse(int argc,char* argv[])
 {
 	cond_check_r(NULL==_oriArgs,"already inited",-1);
 	cond_check_r(0<argc,"invalid argc",-1);
@@ -91,7 +91,7 @@ int CArgs::init(int argc,char* argv[])
 		int len=strlen(argv[i]);
 		bool ignore=false;
 
-		checkMacros(argv[i]);
+		parseMacro(argv[i]);
 		//忽略类似指令 -Wp,-MD,scripts/mod/.empty.o.d
 		ignore=NULL!=strstr(argv[i],"-MD");
 		if(!ignore)
@@ -136,10 +136,9 @@ int CArgs::init(int argc,char* argv[])
 	}
 	return 0;
 }
-int CArgs::needCollect(bool& nc)
+bool CArgs::getNeedCollect()
 {
-	nc=_needCollect;
-	return 0;
+	return _needCollect;
 }
 int CArgs::getOriCmd(char**& args)
 {
@@ -152,23 +151,23 @@ std::string CArgs::getObjFileName()
 		return NULL;
 	return _oriArgs[_objFilePos];
 }
-int CArgs::createNewCmd(char**& args,std::string newObjFileName)
+int CArgs::createNewCmd(std::string newObjFileName,char**& args)
 {
 	cond_check_r(NULL!=_newArgs && 0<_objFilePos,"invalid state",-1);
 	strncpy(_newArgs[_objFilePos],newObjFileName.c_str(),PATH_MAX);
 	args=_newArgs;
 	return 0;
 }
-int CArgs::checkMacros(const char* arg)
+int CArgs::parseMacro(const char* arg)
 {
-	cond_check_r(NULL!=arg,"checkMacros failed",-1);
+	cond_check_r(NULL!=arg,"parseMacro failed",-1);
 	int len=strlen(arg);
 	//必须要有"-D"再加一个字符
 	if(3>len)
-		return 0;
+		return -1;
 
 	if('-'!=arg[0] || 'D'!=arg[1])
-		return 0;
+		return -1;
 
 	const char* key=arg+2;
 	const char* value=strchr(key,'=');//处理-DKEY=VALUE

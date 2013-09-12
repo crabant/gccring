@@ -136,13 +136,12 @@ int main(int argc,char* argv[])
 	env.init(argc,argv);
 
 	CArgs args;
-	args.init(argc,argv);
+	args.parse(argc,argv);
 
 	CCollect collect;
 	collect.init(argc,argv);
 
-	bool needCollect;
-	args.needCollect(needCollect);
+	bool needCollect=args.getNeedCollect();
 	
 	//是编译操作
 	if(needCollect)
@@ -157,7 +156,7 @@ int main(int argc,char* argv[])
 		char** newArgs=NULL;
 
 		//拿到新的gcc命令，进行临时编译，获取obj文件对应的所有头文件，源文件信息
-		res=args.createNewCmd(newArgs,newFile);
+		res=args.createNewCmd(newFile,newArgs);
 		cond_check_r(0==res,"getOriCmd failed",-1);
 		cond_check_r(NULL!=newArgs,"oriArgs is NULL",-2);
 		cond_check_r(NULL!=newArgs[0],"args[0] is NULL",-3);
