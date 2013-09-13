@@ -45,12 +45,28 @@ protected:
 	int help();
 	int enable();
 	int disable();
+	/**
+	* 执行make操作
+	* @return 执行结果
+	* @retval 0 成功
+	* @retval !0 失败
+	*/
+	int make();
 	int compiler_add();
 	int compiler_del();
 	int compiler_list();
 	int output_list();
 	int output_refine();
 	int output_clear();
+protected:
+	/**
+	* 获取使能gccring的环境变量PATH值
+	* @path PAT的值
+	* @return 获取结果
+	* @retval 0 成功
+	* @retval !0 失败
+	*/
+	int get_paths_enable_gccring(std::string& pathStr);
 protected:
 	const static CInfo _infos[];
 	std::vector<std::string> _args;

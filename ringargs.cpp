@@ -41,6 +41,7 @@ const CRingArgs::CInfo CRingArgs::_infos[]=
 	{"help",	"",			2,	&CRingArgs::help,			"help\n\t\t\t:show this help\n"},
 	{"enable",	"",			2,	&CRingArgs::enable,			"enable\n\t\t\t:enable gccring redirect output function\n"},
 	{"disable",	"",			2,	&CRingArgs::disable,		"disable\n\t\t\t:disable gccring redirect output function\n"},
+	{"make",	"",			2,	&CRingArgs::make,			"make\n\t\t\t:do make with gccring\n"},
 	{"compiler","add",		4,	&CRingArgs::compiler_add,	"compiler add COMPILER_COMMAND\n\t\t\t:add a compiler alias\n"},
 	{"compiler","del",		4,	&CRingArgs::compiler_del,	"compiler del COMPILER_COMMAND\n\t\t\t:delete a compiler alias\n"},
 	{"compiler","list",		3,	&CRingArgs::compiler_list,	"compiler list\n\t\t\t:list current compiler aliases\n"},
@@ -213,6 +214,26 @@ int CRingArgs::disable()
 	printf("%s\n",ss.str().c_str());
 	return 0;
 }
+int CRingArgs::make()
+{
+	std::string path;
+	int ret=get_paths_enable_gccring(path);
+	if(0!=ret)
+	{
+		fprintf(stderr,"get PATH with gccring enabled failed,ret=%d",ret);
+		return -1;
+	}
+	ret=setenv("PATH",(char*)path.c_str(),1);
+	if(0!=ret)
+	{
+		fprintf(stderr,"putenv failed,ret=%d\n",ret);
+		return -1;
+	}
+	fprintf(stdout,"new env is %s",getenv("PATH"));
+	system("make");
+	return 0;
+}
+
 int CRingArgs::compiler_add()
 {	
 	std::stringstream ss;
@@ -333,5 +354,53 @@ int CRingArgs::output_clear()
 	printf("please rm the directory \"%s\" manually\n",CCfg::_rootPath.c_str());
 	return 0;
 }
+
+int CRingArgs::get_paths_enable_gccring(std::string& pathStr)
+{
+	std::list<std::string> paths;
+	char* env=getenv("PATH");
+	if(NULL==env)
+	{
+		printf("could not get PATH environment variable\n");
+		return -1;
+	}
+	std::vector<char> strEnv;
+	int len=strlen(env);
+	strEnv.resize(len+1);
+	memcpy(&strEnv[0],env,len);
+	char* path=strtok(&strEnv[0],":");
+	while(NULL!=path)
+	{
+		char* absPath=realpath(path,NULL);
+		if(NULL!=absPath)
+		{
+			if(0!=strcmp(CFG_CMD_PATH,absPath))
+				paths.push_back(path);
+			else
+			{
+				if(paths.empty())//CFG_CMD_PATH is at frist position
+				{
+					printf("already enabled\n");
+					return 0;
+				}
+			}
+		}
+		else
+			paths.push_back(path);
+		path=strtok(NULL,":");
+	}
+	std::list<std::string>::iterator iter;
+	std::stringstream ss;
+	//ss<<"PATH=\"";
+	ss<<CFG_CMD_PATH;
+	for(iter=paths.begin();paths.end()!=iter;++iter)
+	{
+		ss<<":"<<*iter;
+	}
+	ss<<"\"";
+	pathStr=ss.str();
+	return 0;
+}
+
 
 
